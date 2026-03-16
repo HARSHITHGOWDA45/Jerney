@@ -1,0 +1,48 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: jerney-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: jerney_user
+      POSTGRES_PASSWORD: jerney_pass_2026
+      POSTGRES_DB: jerney_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jerney-network
+
+  backend:
+    build: ./backend
+    container_name: jerney-backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: jerney_user
+      DB_PASSWORD: jerney_pass_2026
+      DB_NAME: jerney_db
+    networks:
+      - jerney-network
+
+  frontend:
+    build: ./frontend
+    container_name: jerney-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - jerney-network
+
+networks:
+  jerney-network:
+
+volumes:
+  postgres_data:
